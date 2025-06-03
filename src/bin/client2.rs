@@ -2,9 +2,11 @@ use std::fs;
 use std::io::{ Write};
 use std::net::{TcpListener, TcpStream};
 use std::time::Instant;
+use rand::Rng;
 use tfhe::boolean::prelude::*;
-use fde_protocols::homomorphic_functions::{decrypt_bools, hex_sha3, pad_sha3_256_bytes, sha3_256_fhe, unpad_sha3_256_bytes};
-use fde_protocols::prot1_utils::*;
+use fde_protocols::homomorphic_functions::{compute_challenge, hex_sha3, homomoprhic_symmetric_dec, sha3_256_fhe, sha3_hash_from_vec_bool, symmetric_dec, unpad_sha3_256_bytes};
+use fde_protocols::prot_utils::*;
+
 
 
 
@@ -18,66 +20,98 @@ fn main() {
 
     let mut time_recap: String = String::new();
 
-
     println!("Client ▶ listening on port {} …", CLIENT_PORT);
     let listener =
         TcpListener::bind(("127.0.0.1", CLIENT_PORT)).expect("Failed to bind Client listener");
 
     // First, wait for the server to send ct, evk, op
-    let (server_conn, addr) = listener
+    let (mut server_conn, addr) = listener
         .accept()
         .expect("Failed to accept connection from Server");
     println!("Client ▶ accepted connection from Server at {}", addr);
 
 
-    let ct_serialized : Vec<u8> = read_one_message(&server_conn).unwrap();
-    let pk_serialized : Vec<u8> = read_one_message(&server_conn).unwrap();
-    let com_serialized : Vec<u8> = read_one_message(&server_conn).unwrap();
-    let len_comm = ct_serialized.len() + pk_serialized.len() + com_serialized.len();
+    // Get data from the server
+    let sym_enc_data_serialized = read_one_message(&server_conn).unwrap();
+    let encrypted_sym_key_serialized = read_one_message(&server_conn).unwrap();
+    let sym_key_hash_serialized = read_one_message(&server_conn).unwrap();
+    let iv_serialized = read_one_message(&server_conn).unwrap();
+    let public_key_serialized = read_one_message(&server_conn).unwrap();
 
-    let ct : Vec<Ciphertext> = bincode::deserialize(&ct_serialized).unwrap();
-    let ct_copy = ct.clone();
-    let pk : ServerKey = bincode::deserialize(&pk_serialized).unwrap();
+    let sym_enc_data : Vec<bool> = bincode::deserialize(&sym_enc_data_serialized).unwrap();
+    let encrypted_sym_key_part : Vec<Ciphertext> = bincode::deserialize(&encrypted_sym_key_serialized).unwrap();
+    let encrypted_sym_key : [Ciphertext; 80] = encrypted_sym_key_part.try_into().unwrap();
+
+    let sym_key_hash : String = bincode::deserialize(&sym_key_hash_serialized).unwrap();
+    let iv_part : Vec<bool> = bincode::deserialize(&iv_serialized).unwrap();
+    let iv : [bool; 80] = iv_part.try_into().unwrap();
+    let public_key : ServerKey = bincode::deserialize(&public_key_serialized).unwrap();
+
+    let len_comm = sym_enc_data_serialized.len() + encrypted_sym_key_serialized.len() +
+        sym_key_hash_serialized.len() + iv_serialized.len() + public_key_serialized.len();
 
     println!(
         "Client ▶ read {} bytes total from Server (JSON).",
         len_comm
     );
 
-    let com_off_chain = format!(
-        "OFF-CHAIN COMMUNICATION COST: {} bytes (ct is {} bytes, pk is {} bytes, com is {} bytes)\n",
-        len_comm,
-        ct_serialized.len(),
-        pk_serialized.len(),
-        com_serialized.len(),
-    );
-
     let start = Instant::now();
-    let hash_enc = sha3_256_fhe(ct, &pk);
+    let data_dec = homomoprhic_symmetric_dec(sym_enc_data.clone(), encrypted_sym_key.clone(), iv,  &public_key);
+    let data_hash_comp = sha3_256_fhe(data_dec, &public_key);
+    let key_hash_comp = sha3_256_fhe(encrypted_sym_key.to_vec(), &public_key);
+
+
+    let (a, b, c) = get_rand_abc();
+
+    let sym_key_hash_bytes = hex::decode(sym_key_hash).unwrap();
+    let sym_key_hash_bits_vec : Vec<bool> =  sym_key_hash_bytes.iter()
+        .flat_map(|byte| (0..8).map(move |i| (byte >> i) & 1u8 == 1u8)).collect();
+    let sym_key_hash_bits : [bool; 256] = sym_key_hash_bits_vec.try_into().unwrap();
+
+    let data_hash_bytes = hex::decode(hash_data.clone()).unwrap();
+    let data_hash_bits_vec: Vec<bool> =  data_hash_bytes.iter()
+        .flat_map(|byte| (0..8).map(move |i| (byte >> i) & 1u8 == 1u8)).collect();
+    let data_hash_bits: [bool; 256] = data_hash_bits_vec.try_into().unwrap();
+
+    let chal = compute_challenge(
+        &key_hash_comp, &data_hash_comp, &sym_key_hash_bits, &data_hash_bits, &a, &b, &c, &public_key);
     let time = start.elapsed();
-    time_recap.push_str(&format!(" (homomorphic hash time is : {:?},", time));
     let mut full_time = time;
-
-    println!("Client ▶ computed Hct = SHA3(ct)");
-
-    let hash_enc_serialized = bincode::serialize(&hash_enc.to_vec()).unwrap();
-    let hash_serialized = bincode::serialize(&hash_data).unwrap();
+    time_recap.push_str(&format!(" (createChal : {:?},", time));
 
 
-    // Connect to SmartContract and send (H, Hct):
+    // Send chal to the server
+    let chal_serialized = bincode::serialize(&chal.as_slice()).unwrap();
+    server_conn.write_all(prepare_message(chal_serialized.as_slice()).as_slice()).unwrap();
+
+    let com_off_chain = format!(
+        "OFF-CHAIN COMMUNICATION COST: {} bytes (ct is {} bytes, H_k is {} bytes, k_ct is {} bytes, iv is {},  public_key is {} bytes, chal is {} bytes)\n",
+        len_comm + chal_serialized.len(),
+        sym_enc_data_serialized.len(),
+        sym_key_hash_bits.len(),
+        encrypted_sym_key_serialized.len(),
+        iv_serialized.len(),
+        public_key_serialized.len(),
+        chal_serialized.len()
+    );
+    let hash_a = sha3_hash_from_vec_bool(a.to_vec());
+
+    // Connect to SmartContract and send (H_a, H_k):
+    let h_a_serialized = bincode::serialize(&hash_a).unwrap();
     println!("Client ▶ connecting to SmartContract at port {} …", SC_PORT);
     let mut sc_conn =
         TcpStream::connect(("127.0.0.1", SC_PORT)).expect("Failed to connect to SmartContract");
 
-    sc_conn.write_all(prepare_message(&hash_enc_serialized).as_slice()).expect("Failed to write data to SmartContract");
-    sc_conn.write_all(prepare_message(&hash_serialized).as_slice()).expect("Failed to write data to SmartContract");
-    sc_conn.write_all(prepare_message(&com_serialized).as_slice()).expect("Failed to write data to SmartContract");
-    println!("Client ▶ sent (H, Hct, Com) on‐chain to SmartContract");
+    sc_conn.write_all(prepare_message(&h_a_serialized).as_slice()).expect("Failed to write data to SmartContract");
+    sc_conn.write_all(prepare_message(&sym_key_hash_serialized).as_slice()).expect("Failed to write data to SmartContract");
+    println!("Client ▶ sent (Ha, Hk) on‐chain to SmartContract");
 
     // Wait for the secret key / status message, in a real scenario the secret key would be public
     // at that point and the smart contract wouldn't have had to send it
     let mut status_data = read_one_message(&sc_conn).unwrap();
-    let data = read_one_message(&sc_conn).unwrap();
+    let key_serialized = read_one_message(&sc_conn).unwrap();
+    let key_part : Vec<bool> = bincode::deserialize(&key_serialized).unwrap();
+    let key : [bool; 80] = key_part.try_into().unwrap();
     let status = status_data.pop().unwrap();
 
     if status == ABORT {
@@ -86,11 +120,9 @@ fn main() {
     }else{
         println!("Client ▶ final outcome from SmartContract = SUCCESS");
         println!("Client ▶ decrypting the data....");
-        let secret_key : ClientKey = bincode::deserialize(&data).unwrap();
-
         let start = Instant::now();
-        let data = decrypt_bools(&ct_copy, &secret_key);
-        let unpaded_data = unpad_sha3_256_bytes(data.as_slice());
+        let data_dec = symmetric_dec(sym_enc_data.to_vec(), key, iv);
+        let unpaded_data = unpad_sha3_256_bytes(data_dec.as_slice());
         let time = start.elapsed();
         time_recap.push_str(&format!(" decryption time is : {:?})", time));
         full_time = time + full_time;
@@ -115,4 +147,32 @@ fn main() {
     beginning_time_string.push_str(time_recap.as_str());
     println!("{}", beginning_time_string);
     println!("{}", com_off_chain);
+}
+
+// Returns a thriple of random bit strings
+fn get_rand_abc()->([bool; 256], [bool; 256], [bool; 256]){
+    let mut buf_a = vec![0u8; 32];
+    rand::thread_rng().fill(&mut buf_a[..]);
+    let mut buf_b = vec![0u8; 32];
+    rand::thread_rng().fill(&mut buf_b[..]);
+    let mut buf_c = vec![0u8; 32];
+    rand::thread_rng().fill(&mut buf_c[..]);
+
+    let mut a: [bool;256] = [false; 256];
+    let mut b: [bool;256] = [false; 256];
+    let mut c: [bool;256] = [false; 256];
+
+
+    for (byte_idx, ((byte_a, byte_b), byte_c)) in buf_a.iter().zip(buf_b).zip(buf_c).enumerate() {
+        for bit_in_byte in 0..8 {
+            let mask = 1 << (bit_in_byte);
+            let bool_a = (byte_a & mask) != 0;
+            let bool_b = (byte_b & mask) != 0;
+            let bool_c = (byte_c & mask) != 0;
+            a[byte_idx * 8 + bit_in_byte] = bool_a;
+            b[byte_idx * 8 + bit_in_byte] = bool_b;
+            c[byte_idx * 8 + bit_in_byte] = bool_c;
+        }
+    }
+    (a, b, c)
 }

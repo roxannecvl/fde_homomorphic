@@ -1,7 +1,5 @@
 use rand::{rngs::OsRng, RngCore};
 use serde::{Serialize, Deserialize};
-use tfhe::boolean::ciphertext::Ciphertext;
-use tfhe::boolean::prelude::ServerKey;
 use crate::homomorphic_functions::hex_sha3;
 
 
@@ -25,7 +23,7 @@ pub fn commit(data: &[u8]) -> (String, Opening) {
     concatanation.extend_from_slice(data);
     let hash = hex_sha3(concatanation.as_slice());
 
-    let mut opening = Opening{nonce: nonce, data : data.to_vec()};
+    let opening = Opening{nonce: nonce, data : data.to_vec()};
 
     (hash, opening)
 }

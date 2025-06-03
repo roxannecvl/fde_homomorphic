@@ -1,8 +1,7 @@
-use serde::{Deserialize, Serialize};
 use tfhe::boolean::ciphertext::Ciphertext;
 use tfhe::boolean::client_key::ClientKey;
 use crate::commitment::*;
-use crate::homomorphic_functions::{decrypt_bools, bools_to_hex};
+use crate::homomorphic_functions::{decrypt_bools, bools_to_hex, sha3_hash_from_vec_bool};
 use std::io::{self, Read};
 use std::net::{TcpStream};
 
@@ -15,31 +14,21 @@ pub const SERVER_PORT: u16 = 9001;
 pub const DATA_FILE : &str = "data.txt";
 pub const HASH_FILE : &str = "hash.txt";
 
-#[derive(Serialize, Deserialize)]
-pub struct Message1 {
-    pub ct: Vec<u8>,
-    pub pk: Vec<u8>,
-    pub com: Vec<u8>,
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct Message2 {
-    pub h_ct: Vec<u8>,
-    pub h: Vec<u8>,
-    pub com: Vec<u8>,
-}
-#[derive(Serialize, Deserialize)]
-pub struct Message3 {
-    pub status : u8,
-    pub opening : Vec<u8>,
-}
-
+// Verify function for smart contract and server for protocol I
 pub fn verify(hash_ct : Vec<Ciphertext>, hash : String, com : String, op : &Opening) -> bool {
     if !verify_open(com, op) { return false }
     let secret_key : ClientKey = bincode::deserialize(op.data.as_slice()).unwrap();
     let hash_comp = decrypt_bools(&hash_ct, &secret_key);
     bools_to_hex(&hash_comp) == hash
 }
+
+// VerifyKA function for smart contract and server for protocol II
+pub fn verify_ka(hash_a : String, hash_k : String, a : Vec<bool>, k : Vec<bool>) -> bool {
+    let hash_a_comp = sha3_hash_from_vec_bool(a);
+    let hash_k_comp = sha3_hash_from_vec_bool(k);
+    hash_a_comp == hash_a && hash_k_comp == hash_k
+}
+
 
 // Reads one message, does not wait for connection to be closed
 pub fn read_one_message(mut stream: &TcpStream) -> io::Result<Vec<u8>> {

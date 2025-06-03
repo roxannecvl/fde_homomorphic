@@ -1,10 +1,10 @@
-#[allow(clippy::module_inception)]
-mod boolean_ops64;
-mod boolean_ops256;
-mod new_trivium;
-mod padding;
-mod sha3_256_function;
-mod encryption;
+
+pub mod boolean_ops64;
+pub mod boolean_ops256;
+pub mod new_trivium;
+pub mod padding;
+pub mod sha3_256_function;
+pub mod encryption;
 
 pub use boolean_ops64::*;
 pub use boolean_ops256::*;

@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 #
-# run_prot1_with_outputs.sh
-#
-# Usage: ./run_prot1_with_outputs.sh <size>
 #
 # 1) Ensure a size argument is provided
 # 2) Run setup with `--size <size>`
@@ -10,9 +7,9 @@
 #    redirecting each of their stdout into its own temp file
 # 4) Wait for all three to exit
 # 5) Compute elapsed time
-# 6) Read the last two non-empty lines from client_out.txt and sc_out.txt,
-#    and the last non-empty line from server_out.txt, assigning each to its own variable
-# 7) Append elapsed time + those variables into prot1_output.txt
+# 6) Read the last two non-empty lines from client2_out.txt and sc2_out.txt,
+#    and the last non-empty line from server2_out.txt, assigning each to its own variable
+# 7) Append elapsed time + those variables into prot2_output.txt
 
 set -euo pipefail
 
@@ -31,13 +28,13 @@ SIZE="$1"
 # 3) Record start time (seconds since the epoch) and launch each program in the background
 START_TIME=$(date +%s)
 
-./target/release/client1         > client_out.txt       2>&1 &
+./target/release/client2         > client2_out.txt       2>&1 &
 PID_CLIENT=$!
 
-./target/release/smart_contract1 > sc_out.txt           2>&1 &
+./target/release/smart_contract2 > sc2_out.txt           2>&1 &
 PID_SC=$!
 
-./target/release/server1        > server_out.txt       2>&1 &
+./target/release/server2        > server2_out.txt       2>&1 &
 PID_SERVER=$!
 
 # 4) Wait for all three to finish
@@ -49,12 +46,12 @@ wait "$PID_SERVER"
 END_TIME=$(date +%s)
 ELAPSED=$(( END_TIME - START_TIME ))
 
-# 6) POSIX‐compatible extraction of last two non-empty lines from client_out.txt
+# 6) POSIX‐compatible extraction of last two non-empty lines from client2_out.txt
 CLIENT_RET_BEFORE_LAST_LINE=""
 CLIENT_RET_LAST_LINE=""
 
 # Filter out blank lines, take last two into a temp file
-grep -v '^$' client_out.txt | tail -n 2 > _tmp_client_lines.txt
+grep -v '^$' client2_out.txt | tail -n 2 > _tmp_client_lines.txt
 CLIENT_LINE_COUNT=$(wc -l < _tmp_client_lines.txt)
 
 if [ "$CLIENT_LINE_COUNT" -ge 2 ]; then
@@ -73,7 +70,7 @@ rm -f _tmp_client_lines.txt
 SC_RET_BEFORE_LAST_LINE=""
 SC_RET_LAST_LINE=""
 
-grep -v '^$' sc_out.txt | tail -n 2 > _tmp_sc_lines.txt
+grep -v '^$' sc2_out.txt | tail -n 2 > _tmp_sc_lines.txt
 SC_LINE_COUNT=$(wc -l < _tmp_sc_lines.txt)
 
 if [ "$SC_LINE_COUNT" -ge 2 ]; then
@@ -88,13 +85,13 @@ else
 fi
 rm -f _tmp_sc_lines.txt
 
-# 6c) POSIX‐compatible extraction of last non-empty line from server_out.txt
-SERVER_RET_LAST_LINE=$(grep -v '^$' server_out.txt | tail -n 1 || echo "")
+# 6c) POSIX‐compatible extraction of last non-empty line from server2_out.txt
+SERVER_RET_LAST_LINE=$(grep -v '^$' server2_out.txt | tail -n 1 || echo "")
 if [ -z "$SERVER_RET_LAST_LINE" ]; then
     SERVER_RET_LAST_LINE="<no output>"
 fi
 
-# 7) Append everything to prot1_output.txt
+# 7) Append everything to prot2_output.txt
 {
   echo "=== Run with size=${SIZE} ==="
   echo "COMPUTATION COST:"
@@ -109,4 +106,4 @@ fi
 
   echo
   echo
-} >> prot1_output.txt
+} >> prot2_output.txt

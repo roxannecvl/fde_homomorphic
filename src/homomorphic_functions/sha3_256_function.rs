@@ -2,8 +2,6 @@
 //!
 //! This file provides `sha3_fhe` which takes a fixed-size block of 1088 encrypted bits
 //! and returns 256 encrypted bits representing the SHA3-256 digest.
-use tfhe::boolean::ciphertext::Ciphertext;
-use tfhe::boolean::engine::bootstrapping::ServerKey;
 use tfhe::boolean::prelude::*;
 use sha3::{Digest, Sha3_256};
 
@@ -47,6 +45,22 @@ pub fn hex_sha3(data : &[u8]) -> String {
     let result = hasher.finalize();
     let hex   = hex::encode(result);
     hex
+}
+
+pub fn sha3_hash_from_vec_bool(data: Vec<bool>) -> String {
+    // Get bytes from Vec<bool>
+    let bytes : Vec<u8> = data.chunks(8)
+        .map(|chunk| {
+            chunk.iter().enumerate().fold(0u8, |acc, (i, &bit)| {
+                if bit {
+                    acc | (1 << i)
+                } else {
+                    acc
+                }
+            })
+        })
+        .collect();
+    hex_sha3(&bytes)
 }
 
 /// Homomorphic SHA3-256, returns 256 Ciphertext bits

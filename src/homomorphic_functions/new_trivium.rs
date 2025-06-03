@@ -1,10 +1,11 @@
 //! This module implements the Trivium stream cipher, using boolean or Ciphertext
 //! for the representation of the inner bits.
-//! This was taken from trivium in the zama library and adpated for the boolean API.
+//! This was taken from trivium in the zama library and adapted for the boolean API.
 
 use crate::static_deque::StaticDeque;
 use rayon::prelude::*;
 use tfhe::boolean::prelude::*;
+use crate::homomorphic_functions::xor_with_plain;
 
 /// TriviumStream: a struct implementing the Trivium stream cipher, using T for the internal
 /// representation of bits (bool or FheBool). To be able to compute FHE operations, it also owns
@@ -186,7 +187,7 @@ impl TriviumStream<Ciphertext> {
     }
 
 
-    // COPY FROM GENERIC TRIVUM, REPLACED T BY CIPHERTEXT
+    // COPY FROM GENERIC TRIVIUM, REPLACED IT BY CIPHERTEXT
     fn new_from_registers(
         a_register: [Ciphertext; 93],
         b_register: [Ciphertext; 84],
@@ -305,5 +306,64 @@ impl TriviumStream<Ciphertext> {
         let inter = sk.xor(a, b);
         sk.xor(c, &inter)
     }
+}
+
+// This function returns the symmetric keystream derived from initial key and iv
+pub fn get_plain_keystream_n (key : [bool; 80], iv : [bool; 80], size : usize) -> Vec<bool>{
+    let mut clear_trivium = TriviumStream::<bool>::new(key, iv);
+    let mut keystream: Vec<bool> = Vec::with_capacity(size);
+    while keystream.len() + 64 <= size {
+        let cipher_outputs = clear_trivium.next_64();
+        for c in cipher_outputs {
+            keystream.push(c)
+        }
+    }
+    while keystream.len()  < size {
+        let c = clear_trivium.next_bool();
+        keystream.push(c)
+    }
+    keystream
+}
+
+// This function returns the homomorphic encryption of the symmetric keystream derived from initial
+// key and iv
+pub fn get_cipher_keystream_n (key : [Ciphertext; 80], iv : [bool; 80], size : usize, sk: &ServerKey) -> Vec<Ciphertext>{
+    let mut fhe_trivium =
+        TriviumStream::<Ciphertext>::new(key, iv.clone(), sk);
+    let mut fhe_keystream: Vec<Ciphertext> = Vec::with_capacity(size);
+    while fhe_keystream.len() + 64 <= size {
+        let cipher_outputs = fhe_trivium.next_64();
+        for c in cipher_outputs {
+            fhe_keystream.push(c)
+        }
+    }
+    while fhe_keystream.len()  < size {
+        let c = fhe_trivium.next_bool();
+        fhe_keystream.push(c)
+    }
+    fhe_keystream
+}
+
+// Performs the trivium symmetric encryption
+pub fn symmetric_enc(input : Vec<bool>, key : [bool; 80], iv : [bool; 80] ) -> Vec<bool> {
+    let keystream = get_plain_keystream_n(key, iv, input.len());
+    let sym_end_data = keystream.iter()
+        .zip(input.iter())
+        .map(|(&bit_a, &bit_b)| bit_a ^ bit_b)
+        .collect();
+    sym_end_data
+}
+
+// Performs the trivium symmetric decryption
+pub fn symmetric_dec(input : Vec<bool>, key : [bool; 80], iv : [bool; 80] ) -> Vec<bool> {
+   // same as encryption as it is just xoring
+    symmetric_enc(input, key, iv)
+}
+
+
+// Performs the trivium symmetric decryption
+pub fn homomoprhic_symmetric_dec(input : Vec<bool>, key : [Ciphertext; 80], iv : [bool; 80], sk : &ServerKey) -> Vec<Ciphertext> {
+    let fhe_keystream = get_cipher_keystream_n(key, iv, input.len(), sk);
+    xor_with_plain(&fhe_keystream, &input, &sk)
 }
 
