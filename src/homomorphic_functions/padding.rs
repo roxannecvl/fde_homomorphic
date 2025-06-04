@@ -19,7 +19,7 @@ pub fn pad_sha3_256_bytes(data_array: &[u8]) -> Vec<bool> {
 
     // From bytes representation output the boolean array representation
     data.iter()
-        .flat_map(|byte| (0..8).map(move |i| (byte >> i) & 1 == 1))
+        .flat_map(|byte| (0..8).map(move |i| (byte >> i) & 1u8 == 1u8))
         .collect()
 }
 
@@ -51,7 +51,7 @@ pub fn pad_sha3_256_cipher(ct : Vec<Ciphertext>, sk : &ServerKey) -> Vec<Ciphert
         }
 
         let zero_byte_cipher: Ciphertext = sk.trivial_encrypt(false);
-        while mut_ct.len() % RATE_BYTES != RATE_BYTES - 1 {
+        while (mut_ct.len() / 8) % RATE_BYTES != RATE_BYTES - 1 {
             for _ in 0..8 {
                 mut_ct.push(zero_byte_cipher.clone());
             }

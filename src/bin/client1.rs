@@ -3,7 +3,7 @@ use std::io::{ Write};
 use std::net::{TcpListener, TcpStream};
 use std::time::Instant;
 use tfhe::boolean::prelude::*;
-use fde_protocols::homomorphic_functions::{decrypt_bools, hex_sha3,sha3_256_fhe, unpad_sha3_256_bytes};
+use fde_protocols::homomorphic_functions::{decrypt_bools, hex_sha3, sha3_256_fhe, unpad_sha3_256_bytes};
 use fde_protocols::prot_utils::*;
 
 

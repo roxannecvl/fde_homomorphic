@@ -8,7 +8,7 @@ use tfhe::boolean::gen_keys;
 use fde_protocols::prot_utils::*;
 use fde_protocols::homomorphic_functions::{decrypt_bools, encrypt_bools, hex_sha3, pad_sha3_256_bytes, pad_sha3_256_cipher, symmetric_enc, unpad_sha3_256_bytes};
 fn main() {
-
+    println!("Server ▶ Starting...");
     let data = fs::read(DATA_FILE).map_err(|e| {
         format!(
             "Failed to read `{}`: {}",
@@ -26,12 +26,14 @@ fn main() {
 
     // Get key stream of length of data and symmetrically encrypt the data
     let sym_enc_data = symmetric_enc(padded_input, sym_key, iv);
+    println!("Server ▶ Encrypted the data symmetrically ");
     let time = start.elapsed();
     let mut full_time = time;
     time_recap.push_str(&format!(" (pad and symmetric encryption: {:?}, ", time));
 
     let start = Instant::now();
     let encrypted_key = encrypt_bools(sym_key.to_vec(), &ck);
+    println!("Server ▶ Encrypted the symmetric key homomophically");
     let time = start.elapsed();
     full_time = full_time + time;
     time_recap.push_str(&format!(" homomorphic encryption: {:?}, ", time));
@@ -42,16 +44,6 @@ fn main() {
     full_time = full_time + time;
     time_recap.push_str(&format!(" hash of sym key: {:?}, ", time));
 
-    // TODO REMOVE
-    let encrypted_key_padded = pad_sha3_256_cipher(encrypted_key.clone(), &sk);
-
-    let decrypted_key = decrypt_bools(&encrypted_key_padded, &ck);
-    let key_comp = unpad_sha3_256_bytes(decrypted_key.as_slice());
-    println!("just before");
-    //assert_eq!(buf_sym_key, key_comp.as_slice());
-    println!("Computed key comparison ok");
-    // TODO REMOVE
-
     // Send sym_enc_data, hash_key, encrypted_key, iv,  homomorphic_public_key to the client
     let sym_enc_data_serialize = bincode::serialize(&sym_enc_data).unwrap();
     let encrypted_sym_key_serialize = bincode::serialize(&encrypted_key).unwrap();
@@ -59,7 +51,7 @@ fn main() {
     let iv_serialize = bincode::serialize(&iv.as_slice()).unwrap();
     let public_key_serialize = bincode::serialize(&sk).unwrap();
 
-
+    println!("Server ▶ sent (ct, Hk, kct, pk) off-chain to Client");
     let mut client_conn =
         TcpStream::connect(("127.0.0.1", CLIENT_PORT)).expect("Failed to connect to Client");
     client_conn.write_all(prepare_message(&sym_enc_data_serialize).as_slice()).expect("Failed to write data to SmartContract");

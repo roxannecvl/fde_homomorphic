@@ -4,7 +4,7 @@ use std::net::{TcpListener, TcpStream};
 use std::time::Instant;
 use rand::Rng;
 use tfhe::boolean::prelude::*;
-use fde_protocols::homomorphic_functions::{compute_challenge, hex_sha3, homomoprhic_symmetric_dec, sha3_256_fhe, sha3_hash_from_vec_bool, symmetric_dec, unpad_sha3_256_bytes};
+use fde_protocols::homomorphic_functions::{compute_challenge, hex_sha3, homomoprhic_symmetric_dec, pad_sha3_256_cipher, sha3_256_fhe, sha3_hash_from_vec_bool, symmetric_dec, unpad_sha3_256_bytes};
 use fde_protocols::prot_utils::*;
 
 
@@ -55,12 +55,14 @@ fn main() {
         len_comm
     );
 
+    println!("Client ▶ computing the hashes homomorphically...");
     let start = Instant::now();
     let data_dec = homomoprhic_symmetric_dec(sym_enc_data.clone(), encrypted_sym_key.clone(), iv,  &public_key);
     let data_hash_comp = sha3_256_fhe(data_dec, &public_key);
-    let key_hash_comp = sha3_256_fhe(encrypted_sym_key.to_vec(), &public_key);
+    let padded_sym_key = pad_sha3_256_cipher(encrypted_sym_key.to_vec(), &public_key);
+    let key_hash_comp = sha3_256_fhe(padded_sym_key.to_vec(), &public_key);
 
-
+    println!("Client ▶ computing the challenge with the hashes ...");
     let (a, b, c) = get_rand_abc();
 
     let sym_key_hash_bytes = hex::decode(sym_key_hash).unwrap();
@@ -83,6 +85,7 @@ fn main() {
     // Send chal to the server
     let chal_serialized = bincode::serialize(&chal.as_slice()).unwrap();
     server_conn.write_all(prepare_message(chal_serialized.as_slice()).as_slice()).unwrap();
+    println!("Client ▶ sent chal to the server");
 
     let com_off_chain = format!(
         "OFF-CHAIN COMMUNICATION COST: {} bytes (ct is {} bytes, H_k is {} bytes, k_ct is {} bytes, iv is {},  public_key is {} bytes, chal is {} bytes)\n",
