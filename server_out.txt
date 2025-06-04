@@ -1,2 +1,0 @@
-Server ▶ sent (ct, pk, com) off-chain to Client
-Server ▶ shutdown Client

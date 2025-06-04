@@ -1,3 +1,0 @@
-Client ▶ listening on port 9002 …
-Client ▶ accepted connection from Server at 127.0.0.1:49674
-Client ▶ read 137573316 bytes total from Server (JSON).

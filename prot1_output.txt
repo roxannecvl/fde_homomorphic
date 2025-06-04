@@ -32,3 +32,147 @@ OFF-CHAIN COMMUNICATION COST: 134026436 bytes (ct is 3546888 bytes, pk is 130479
 ON-CHAIN COMMUNICATION COST: 844232 bytes (Hct = 834568, H = 72, com = 72, op = 9520) .
 
 
+=== Run with size=256 ===
+COMPUTATION COST:
+Elapsed time (for the whole exchange): 959 seconds
+CLIENT COMPUTATION COST IS 957.528799041s (homomorphic hash time is : 957.5268755s, decryption time is : 1.923541ms)
+SMART CONTRACT COMPUTATION COST SMART CONTRACT COMPUTATION COST IS 120.958µs (verify : 120.958µs)
+SERVER COMPUTATION COST IS 462.266708ms (pad and encrypt : 462.192708ms,  verify : 74µs)
+
+COMMUNICATION COST:
+OFF-CHAIN COMMUNICATION COST: 137573316 bytes (ct is 7093768 bytes, pk is 130479476 bytes, com is 72 bytes)
+ON-CHAIN COMMUNICATION COST: 844232 bytes (Hct = 834568, H = 72, com = 72, op = 9520) .
+
+
+=== Run with size=256 ===
+COMPUTATION COST:
+Elapsed time (for the whole exchange): 968 seconds
+CLIENT COMPUTATION COST IS 966.039920041s (homomorphic hash time is : 966.03816675s, decryption time is : 1.753291ms)
+SMART CONTRACT COMPUTATION COST SMART CONTRACT COMPUTATION COST IS 89.917µs (verify : 89.917µs)
+SERVER COMPUTATION COST IS 419.295958ms (pad and encrypt : 419.205083ms,  verify : 90.875µs)
+
+COMMUNICATION COST:
+OFF-CHAIN COMMUNICATION COST: 137573316 bytes (ct is 7093768 bytes, pk is 130479476 bytes, com is 72 bytes)
+ON-CHAIN COMMUNICATION COST: 844232 bytes (Hct = 834568, H = 72, com = 72, op = 9520) .
+
+
+=== Run with size=256 ===
+COMPUTATION COST:
+Elapsed time (for the whole exchange): 971 seconds
+CLIENT COMPUTATION COST IS 974.104714625s (homomorphic hash time is : 974.102790917s, decryption time is : 1.923708ms)
+SMART CONTRACT COMPUTATION COST SMART CONTRACT COMPUTATION COST IS 98.416µs (verify : 98.416µs)
+SERVER COMPUTATION COST IS 439.156042ms (pad and encrypt : 439.06525ms,  verify : 90.792µs)
+
+COMMUNICATION COST:
+OFF-CHAIN COMMUNICATION COST: 137573316 bytes (ct is 7093768 bytes, pk is 130479476 bytes, com is 72 bytes)
+ON-CHAIN COMMUNICATION COST: 844232 bytes (Hct = 834568, H = 72, com = 72, op = 9520) .
+
+
+=== Run with size=512 ===
+COMPUTATION COST:
+Elapsed time (for the whole exchange): 1980 seconds
+CLIENT COMPUTATION COST IS 1978.780474042s (homomorphic hash time is : 1978.776832667s, decryption time is : 3.641375ms)
+SMART CONTRACT COMPUTATION COST SMART CONTRACT COMPUTATION COST IS 99.334µs (verify : 99.334µs)
+SERVER COMPUTATION COST IS 448.018959ms (pad and encrypt : 447.920834ms,  verify : 98.125µs)
+
+COMMUNICATION COST:
+OFF-CHAIN COMMUNICATION COST: 144667076 bytes (ct is 14187528 bytes, pk is 130479476 bytes, com is 72 bytes)
+ON-CHAIN COMMUNICATION COST: 844232 bytes (Hct = 834568, H = 72, com = 72, op = 9520) .
+
+
+=== Run with size=512 ===
+COMPUTATION COST:
+Elapsed time (for the whole exchange): 1964 seconds
+CLIENT COMPUTATION COST IS 1962.339273708s (homomorphic hash time is : 1962.3348155s, decryption time is : 4.458208ms)
+SMART CONTRACT COMPUTATION COST SMART CONTRACT COMPUTATION COST IS 105.417µs (verify : 105.417µs)
+SERVER COMPUTATION COST IS 461.611626ms (pad and encrypt : 461.526709ms,  verify : 84.917µs)
+
+COMMUNICATION COST:
+OFF-CHAIN COMMUNICATION COST: 144667076 bytes (ct is 14187528 bytes, pk is 130479476 bytes, com is 72 bytes)
+ON-CHAIN COMMUNICATION COST: 844232 bytes (Hct = 834568, H = 72, com = 72, op = 9520) .
+
+
+=== Run with size=512 ===
+COMPUTATION COST:
+Elapsed time (for the whole exchange): 1966 seconds
+CLIENT COMPUTATION COST IS 1964.447549709s (homomorphic hash time is : 1964.441928875s, decryption time is : 5.620834ms)
+SMART CONTRACT COMPUTATION COST SMART CONTRACT COMPUTATION COST IS 109.625µs (verify : 109.625µs)
+SERVER COMPUTATION COST IS 450.750833ms (pad and encrypt : 450.667208ms,  verify : 83.625µs)
+
+COMMUNICATION COST:
+OFF-CHAIN COMMUNICATION COST: 144667076 bytes (ct is 14187528 bytes, pk is 130479476 bytes, com is 72 bytes)
+ON-CHAIN COMMUNICATION COST: 844232 bytes (Hct = 834568, H = 72, com = 72, op = 9520) .
+
+
+=== Run with size=768 ===
+COMPUTATION COST:
+Elapsed time (for the whole exchange): 2943 seconds
+CLIENT COMPUTATION COST IS 2941.737528874s (homomorphic hash time is : 2941.732230833s, decryption time is : 5.298041ms)
+SMART CONTRACT COMPUTATION COST SMART CONTRACT COMPUTATION COST IS 94.708µs (verify : 94.708µs)
+SERVER COMPUTATION COST IS 458.789583ms (pad and encrypt : 458.720083ms,  verify : 69.5µs)
+
+COMMUNICATION COST:
+OFF-CHAIN COMMUNICATION COST: 151760836 bytes (ct is 21281288 bytes, pk is 130479476 bytes, com is 72 bytes)
+ON-CHAIN COMMUNICATION COST: 844232 bytes (Hct = 834568, H = 72, com = 72, op = 9520) .
+
+
+=== Run with size=768 ===
+COMPUTATION COST:
+Elapsed time (for the whole exchange): 2932 seconds
+CLIENT COMPUTATION COST IS 2942.960084959s (homomorphic hash time is : 2942.954750334s, decryption time is : 5.334625ms)
+SMART CONTRACT COMPUTATION COST SMART CONTRACT COMPUTATION COST IS 96.375µs (verify : 96.375µs)
+SERVER COMPUTATION COST IS 484.169375ms (pad and encrypt : 484.093458ms,  verify : 75.917µs)
+
+COMMUNICATION COST:
+OFF-CHAIN COMMUNICATION COST: 151760836 bytes (ct is 21281288 bytes, pk is 130479476 bytes, com is 72 bytes)
+ON-CHAIN COMMUNICATION COST: 844232 bytes (Hct = 834568, H = 72, com = 72, op = 9520) .
+
+
+=== Run with size=768 ===
+COMPUTATION COST:
+Elapsed time (for the whole exchange): 2944 seconds
+CLIENT COMPUTATION COST IS 2942.238261375s (homomorphic hash time is : 2942.2327525s, decryption time is : 5.508875ms)
+SMART CONTRACT COMPUTATION COST SMART CONTRACT COMPUTATION COST IS 234.875µs (verify : 234.875µs)
+SERVER COMPUTATION COST IS 485.546125ms (pad and encrypt : 485.474ms,  verify : 72.125µs)
+
+COMMUNICATION COST:
+OFF-CHAIN COMMUNICATION COST: 151760836 bytes (ct is 21281288 bytes, pk is 130479476 bytes, com is 72 bytes)
+ON-CHAIN COMMUNICATION COST: 844232 bytes (Hct = 834568, H = 72, com = 72, op = 9520) .
+
+
+=== Run with size=1024 ===
+COMPUTATION COST:
+Elapsed time (for the whole exchange): 3927 seconds
+CLIENT COMPUTATION COST IS 3926.223483959s (homomorphic hash time is : 3926.215732209s, decryption time is : 7.75175ms)
+SMART CONTRACT COMPUTATION COST SMART CONTRACT COMPUTATION COST IS 95.791µs (verify : 95.791µs)
+SERVER COMPUTATION COST IS 489.528125ms (pad and encrypt : 489.4485ms,  verify : 79.625µs)
+
+COMMUNICATION COST:
+OFF-CHAIN COMMUNICATION COST: 158854596 bytes (ct is 28375048 bytes, pk is 130479476 bytes, com is 72 bytes)
+ON-CHAIN COMMUNICATION COST: 844232 bytes (Hct = 834568, H = 72, com = 72, op = 9520) .
+
+
+=== Run with size=1024 ===
+COMPUTATION COST:
+Elapsed time (for the whole exchange): 3915 seconds
+CLIENT COMPUTATION COST IS 3913.790868958s (homomorphic hash time is : 3913.784567916s, decryption time is : 6.301042ms)
+SMART CONTRACT COMPUTATION COST SMART CONTRACT COMPUTATION COST IS 87.917µs (verify : 87.917µs)
+SERVER COMPUTATION COST IS 509.120917ms (pad and encrypt : 509.057292ms,  verify : 63.625µs)
+
+COMMUNICATION COST:
+OFF-CHAIN COMMUNICATION COST: 158854596 bytes (ct is 28375048 bytes, pk is 130479476 bytes, com is 72 bytes)
+ON-CHAIN COMMUNICATION COST: 844232 bytes (Hct = 834568, H = 72, com = 72, op = 9520) .
+
+
+=== Run with size=1024 ===
+COMPUTATION COST:
+Elapsed time (for the whole exchange): 3920 seconds
+CLIENT COMPUTATION COST IS 3918.231305333s (homomorphic hash time is : 3918.224388125s, decryption time is : 6.917208ms)
+SMART CONTRACT COMPUTATION COST SMART CONTRACT COMPUTATION COST IS 94.833µs (verify : 94.833µs)
+SERVER COMPUTATION COST IS 513.0655ms (pad and encrypt : 512.996167ms,  verify : 69.333µs)
+
+COMMUNICATION COST:
+OFF-CHAIN COMMUNICATION COST: 158854596 bytes (ct is 28375048 bytes, pk is 130479476 bytes, com is 72 bytes)
+ON-CHAIN COMMUNICATION COST: 844232 bytes (Hct = 834568, H = 72, com = 72, op = 9520) .
+
+
