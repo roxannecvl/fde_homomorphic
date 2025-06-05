@@ -55,17 +55,33 @@ fn main() {
         len_comm
     );
 
-    println!("Client ▶ computing the hashes homomorphically...");
+    println!("Client ▶ decrypting the data homomorphically...");
     let start = Instant::now();
+    let small_start = Instant::now();
     let data_dec = homomoprhic_symmetric_dec(sym_enc_data.clone(), encrypted_sym_key.clone(), iv,  &public_key);
+    let small_time = small_start.elapsed();
+    println!("Decrypting the data homomorphically took {:?}", small_time);
+
+    let small_start = Instant::now();
+    println!("Client ▶ Computing the hash of the data homomorphically ...");
     let data_hash_comp = sha3_256_fhe(data_dec, &public_key);
+    let small_time = small_start.elapsed();
+    println!("Computing the hash of the data took {:?}", small_time);
+
+    let small_start = Instant::now();
+    println!("Client ▶ Computing the hash of the key homomorphically ...");
     let padded_sym_key = pad_sha3_256_cipher(encrypted_sym_key.to_vec(), &public_key);
     let key_hash_comp = sha3_256_fhe(padded_sym_key.to_vec(), &public_key);
+    let small_time = small_start.elapsed();
+    println!("Computing the hash of the key {:?}", small_time);
 
     println!("Client ▶ computing the challenge with the hashes ...");
+    let small_start = Instant::now();
     let (a, b, c) = get_rand_abc();
 
+
     let sym_key_hash_bytes = hex::decode(sym_key_hash).unwrap();
+
     let sym_key_hash_bits_vec : Vec<bool> =  sym_key_hash_bytes.iter()
         .flat_map(|byte| (0..8).map(move |i| (byte >> i) & 1u8 == 1u8)).collect();
     let sym_key_hash_bits : [bool; 256] = sym_key_hash_bits_vec.try_into().unwrap();
@@ -77,9 +93,13 @@ fn main() {
 
     let chal = compute_challenge(
         &key_hash_comp, &data_hash_comp, &sym_key_hash_bits, &data_hash_bits, &a, &b, &c, &public_key);
+    let small_time = small_start.elapsed();
+    println!("Computing the chal {:?}", small_time);
     let time = start.elapsed();
     let mut full_time = time;
     time_recap.push_str(&format!(" (createChal : {:?},", time));
+
+
 
 
     // Send chal to the server
@@ -91,7 +111,7 @@ fn main() {
         "OFF-CHAIN COMMUNICATION COST: {} bytes (ct is {} bytes, H_k is {} bytes, k_ct is {} bytes, iv is {},  public_key is {} bytes, chal is {} bytes)\n",
         len_comm + chal_serialized.len(),
         sym_enc_data_serialized.len(),
-        sym_key_hash_bits.len(),
+        sym_key_hash_serialized.len(),
         encrypted_sym_key_serialized.len(),
         iv_serialized.len(),
         public_key_serialized.len(),
@@ -141,7 +161,6 @@ fn main() {
             println!("homomorphic decryption then hash : {}", direct_hash);
         }
     }
-
     let mut beginning_time_string = String::new();
     beginning_time_string.push_str(&format!(
         "CLIENT COMPUTATION COST IS {:?}" , full_time

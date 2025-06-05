@@ -1,12 +1,12 @@
 use std::io::{ Write};
 use std::net::{Shutdown, TcpListener, TcpStream};
 use std::{fs};
-use std::time::Instant;
+use std::time::{Instant};
 use rand::Rng;
 use tfhe::boolean::ciphertext::Ciphertext;
 use tfhe::boolean::gen_keys;
 use fde_protocols::prot_utils::*;
-use fde_protocols::homomorphic_functions::{decrypt_bools, encrypt_bools, hex_sha3, pad_sha3_256_bytes, pad_sha3_256_cipher, symmetric_enc, unpad_sha3_256_bytes};
+use fde_protocols::homomorphic_functions::{decrypt_bools, encrypt_bools, hex_sha3, pad_sha3_256_bytes, symmetric_enc};
 fn main() {
     println!("Server ▶ Starting...");
     let data = fs::read(DATA_FILE).map_err(|e| {
@@ -51,29 +51,15 @@ fn main() {
     let iv_serialize = bincode::serialize(&iv.as_slice()).unwrap();
     let public_key_serialize = bincode::serialize(&sk).unwrap();
 
-    println!("Server ▶ sent (ct, Hk, kct, pk) off-chain to Client");
     let mut client_conn =
         TcpStream::connect(("127.0.0.1", CLIENT_PORT)).expect("Failed to connect to Client");
-    client_conn.write_all(prepare_message(&sym_enc_data_serialize).as_slice()).expect("Failed to write data to SmartContract");
-    client_conn.write_all(prepare_message(&encrypted_sym_key_serialize).as_slice()).expect("Failed to write data to SmartContract");
-    client_conn.write_all(prepare_message(&sym_key_hash_serialize).as_slice()).expect("Failed to write data to SmartContract");
-    client_conn.write_all(prepare_message(&iv_serialize).as_slice()).expect("Failed to write data to SmartContract");
-    client_conn.write_all(prepare_message(&public_key_serialize).as_slice()).expect("Failed to write data to SmartContract");
+    client_conn.write_all(prepare_message(&sym_enc_data_serialize).as_slice()).expect("Failed to write data to Cient");
+    client_conn.write_all(prepare_message(&encrypted_sym_key_serialize).as_slice()).expect("Failed to write data to Client");
+    client_conn.write_all(prepare_message(&sym_key_hash_serialize).as_slice()).expect("Failed to write data to Client");
+    client_conn.write_all(prepare_message(&iv_serialize).as_slice()).expect("Failed to write data to Client");
+    client_conn.write_all(prepare_message(&public_key_serialize).as_slice()).expect("Failed to write data to Client");
 
     println!("Server ▶ sent (ct, Hk, kct, pk) off-chain to Client");
-
-    // Listen for client chal and shut down connexion with client
-    let chal_data : Vec<u8> = read_one_message(&client_conn).unwrap();
-    client_conn.shutdown(Shutdown::Both).expect("Failed to shutdown Client");
-    println!("Server ▶ shutdown Client");
-
-    // Compute a
-    let start = Instant::now();
-    let chal : Vec<Ciphertext> = bincode::deserialize(&chal_data).unwrap();
-    let a : Vec<bool> = decrypt_bools(&chal, &ck);
-    let time = start.elapsed();
-    full_time = full_time + time;
-    time_recap.push_str(&format!(" decrypt chal and get â: {:?}, ", time));
 
     // Listen to smart contract for Ha and Hk
     let listener =
@@ -84,6 +70,22 @@ fn main() {
 
     let h_a_serialized = read_one_message(&sc_conn).unwrap();
     let h_k_serialized = read_one_message(&sc_conn).unwrap();
+
+    // Listen for client chal and shut down connexion with client
+    let chal_data : Vec<u8> = read_one_message(&client_conn).unwrap();
+    println!("Server ▶ read (chal) from Client");
+    client_conn.shutdown(Shutdown::Both).expect("Failed to shutdown Client");
+    println!("Server ▶ shutdown Client");
+
+    // Compute a
+    let start = Instant::now();
+    let chal : Vec<Ciphertext> = bincode::deserialize(&chal_data).unwrap();
+    let a : Vec<bool> = decrypt_bools(&chal, &ck);
+    let time = start.elapsed();
+    full_time = full_time + time;
+    time_recap.push_str(&format!(" decrypt chal and get â: {:?}, ", time));
+    println!("Server ▶ Decrypted chal to â");
+
 
     let h_a : String = bincode::deserialize(&h_a_serialized).unwrap();
     let h_k : String = bincode::deserialize(&h_k_serialized).unwrap();
