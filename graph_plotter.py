@@ -53,9 +53,9 @@ if __name__ == "__main__":
     titles = {
         'onchain_comm': 'On-chain Communication (bytes)',
         'offchain_comm': 'Off-chain Communication (MB)',
-        'client_comp': 'Client Computation (s)',
-        'server_comp': 'Server Computation (ms)',
-        'smart_comp': 'Smart Contract Computation (µs)'
+        'client_comp': 'Client Computation time (s)',
+        'server_comp': 'Server Computation time (ms)',
+        'smart_comp': 'Smart Contract Computation time (µs)'
     }
 
     # Generate one plot per metric
@@ -75,4 +75,4 @@ if __name__ == "__main__":
         plt.grid(True)
         plt.xticks(sizes)
         #plt.show()
-        plt.savefig(f"{titles[metric]}.pdf", format="pdf")
+        plt.savefig(f"{titles[metric]}.png", format="png", dpi=300)
