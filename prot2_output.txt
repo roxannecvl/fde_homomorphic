@@ -154,3 +154,27 @@ OFF-CHAIN COMMUNICATION COST: 131583724 bytes (ct is 8712 bytes, H_k is 72 bytes
 ON-CHAIN COMMUNICATION COST: 496 bytes (Ha = 72, Hk = 72, a = 264, k = 88) .
 
 
+=== Run with size=1024 ===
+COMPUTATION COST:
+Elapsed time (for the whole exchange): 5909 seconds
+CLIENT COMPUTATION COST IS 5907.540837916s (createChal : 5907.531716166s, decryption time is : 9.12175ms)
+SMART CONTRACT COMPUTATION COST SMART CONTRACT COMPUTATION COST IS 7.167µs (verify : 7.167µs)
+SERVER COMPUTATION COST IS 415.250667ms (pad and symmetric encryption: 413.416583ms,  homomorphic encryption: 1.108167ms,  hash of sym key: 1.416µs,  decrypt chal and get â: 697.834µs,  verify_ka 26.667µs
+
+COMMUNICATION COST:
+OFF-CHAIN COMMUNICATION COST: 131583724 bytes (ct is 8712 bytes, H_k is 72 bytes, k_ct is 260808 bytes, iv is 88,  public_key is 130479476 bytes, chal is 834568 bytes)
+ON-CHAIN COMMUNICATION COST: 496 bytes (Ha = 72, Hk = 72, a = 264, k = 88) .
+
+
+=== Run with size=1024 ===
+COMPUTATION COST:
+Elapsed time (for the whole exchange): 5802 seconds
+CLIENT COMPUTATION COST IS 5800.898535374s (createChal : 5800.893125541s, decryption time is : 5.409833ms)
+SMART CONTRACT COMPUTATION COST SMART CONTRACT COMPUTATION COST IS 7.75µs (verify : 7.75µs)
+SERVER COMPUTATION COST IS 423.487292ms (pad and symmetric encryption: 421.497208ms,  homomorphic encryption: 1.058917ms,  hash of sym key: 1µs,  decrypt chal and get â: 916.208µs,  verify_ka 13.959µs
+
+COMMUNICATION COST:
+OFF-CHAIN COMMUNICATION COST: 131583724 bytes (ct is 8712 bytes, H_k is 72 bytes, k_ct is 260808 bytes, iv is 88,  public_key is 130479476 bytes, chal is 834568 bytes)
+ON-CHAIN COMMUNICATION COST: 496 bytes (Ha = 72, Hk = 72, a = 264, k = 88) .
+
+
