@@ -18,7 +18,8 @@ rustup update
 
 
 ## Running the protocols 
- > **Warning:** All commands are expected to be run from the root of this project 
+ > **Warning:** All commands are expected to be run from the root of this project
+
 Before running any of the two protocols, you should build the project in release mode. 
 `cargo build --release`
 
