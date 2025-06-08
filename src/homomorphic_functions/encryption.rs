@@ -4,6 +4,7 @@
 use tfhe::boolean::ciphertext::Ciphertext;
 use tfhe::boolean::client_key::ClientKey;
 
+/// encrypts booleans with a client key
 pub fn encrypt_bools(bools: Vec<bool>, ck: &ClientKey) -> Vec<Ciphertext> {
     let mut ciphertext = vec![];
 
@@ -13,6 +14,7 @@ pub fn encrypt_bools(bools: Vec<bool>, ck: &ClientKey) -> Vec<Ciphertext> {
     ciphertext
 }
 
+/// decrypts ciphertexts to booleans with a client key
 pub fn decrypt_bools(ciphertext: &Vec<Ciphertext>, ck: &ClientKey) -> Vec<bool> {
     let mut bools = vec![];
 

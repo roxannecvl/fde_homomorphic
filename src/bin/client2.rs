@@ -8,9 +8,6 @@ use tfhe::boolean::prelude::*;
 use fde_protocols::homomorphic_functions::{compute_challenge, hex_sha3, homomoprhic_symmetric_dec, pad_sha3_256_cipher, sha3_256_fhe, sha3_hash_from_vec_bool, symmetric_dec, unpad_sha3_256_bytes};
 use fde_protocols::prot_utils::*;
 
-
-
-
 fn main() {
     // 1 : retrieve the hash of the data
     let hash_data = fs::read_to_string(HASH_FILE).map_err(|e| {
