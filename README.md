@@ -91,7 +91,7 @@ python graph_plotter.py
 ```
 This will produce 5 `.png` files: communication costs (off and on chain), computation costs (for client, server, and smart contract). 
 
-## Propietary code 
+## Proprietary code 
 **The following code was taken as is from the tfhe-rs library**
 `./src/static_decque/*` from https://github.com/zama-ai/tfhe-rs/tree/main/apps/trivium/src/static_deque
 
