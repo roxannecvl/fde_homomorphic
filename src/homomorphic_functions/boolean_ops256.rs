@@ -1,11 +1,13 @@
-// This module contains all the operations and functions used in the sha256 function, implemented
-// with homomorphic boolean operations. Both the bitwise operations, which serve as the building
-// blocks for other functions, and the adders employ parallel processing techniques.
+/// This module contains helper functions for the multiplication of bitstring of 256 bit with ciphertexts
+/// Some of these functions were adapted from boolean_ops in zama's sha256 example
 
 use rayon::prelude::*;
 use std::array;
 use tfhe::boolean::prelude::{BinaryBooleanGates, Ciphertext, ServerKey};
 
+
+/// Computes the chal:
+/// a + b x (comp_hash1 - exp_hash1) + c x (comp_hash2 - exp_hash2)
 pub fn compute_challenge(
     comp_hash1: &[Ciphertext;256],
     comp_hash2: &[Ciphertext;256],
@@ -17,45 +19,43 @@ pub fn compute_challenge(
     sk: &ServerKey,
 ) -> [Ciphertext;256]{
 
+    // perfrom b x comp_hash1 and c x comp_hash2 and add them up
     let enc_mult1 = mul_ciphertext_by_plain_csd_opt_256(comp_hash1, b, &sk);
     let enc_mult2 = mul_ciphertext_by_plain_csd_opt_256(comp_hash2, c, &sk);
     let sum_mult = add_256(&enc_mult1, &enc_mult2, sk);
 
+    // compute the plaintext part of the hash : a - b x exp_hash1 - c x exp_hash2
     let neg_exp_hash1 = plain_minus_shift(exp_hash1, 0);
     let neg_exp_hash2 = plain_minus_shift(exp_hash2, 0);
     let neg_mult1 = mult_two_plain_256(&neg_exp_hash1, b);
     let neg_mult2 = mult_two_plain_256(&neg_exp_hash2, c);
-
-
     let mut plain_part = add_two_plain_256(a, &neg_mult1);
     plain_part = add_two_plain_256(&plain_part, &neg_mult2);
 
+    // add up the plaintext and ciphertext part
     add_plain_256(&sum_mult, &plain_part, sk)
 }
 
 
 
 //  ------------------------------ CIPHERTEXT-CIPHERTEXT OPERATIONS --------------------------------
-// Adds two 256-bits ciphertext, considered as big-endian
-// Modified from add in boolean_ops
+/// Adds two 256-bits ciphertext, considered as big-endian
+/// Modified from add in boolean_ops
 fn add_256(
     a: &[Ciphertext; 256],
     b: &[Ciphertext; 256],
     sk: &ServerKey,
 ) -> [Ciphertext; 256] {
     let (propagate, generate) = rayon::join(|| xor_256(a, b, sk), || and_256(a, b, sk));
-
     let carry = brent_kung_256(&propagate, &generate, sk);
-
-
     xor_256(&propagate, &carry, sk)
 }
 
 
-// Implementation of the Brent Kung parallel prefix algorithm
-// This function computes the carry signals in parallel while minimizing the number of homomorphic
-// operations
-// Modified from brent_kung in boolean_ops
+/// Implementation of the Brent Kung parallel prefix algorithm
+/// This function computes the carry signals in parallel while minimizing the number of homomorphic
+/// operations
+/// Modified from brent_kung in boolean_ops
 fn brent_kung_256(
     propagate: &[Ciphertext; 256],
     generate: &[Ciphertext; 256],
@@ -142,9 +142,8 @@ fn brent_kung_256(
 }
 
 
-// Xor a 256 bit ciphertext with a 256 bit ciphertext bitwise
-// Use parallelization for performance
-// Taken from bitwise_ops in Zama
+/// Xor a 256 bit ciphertext with a 256 bit ciphertext bitwise
+/// Use parallelization for performance
 fn xor_256(a: &[Ciphertext; 256], b: &[Ciphertext; 256], sk: &ServerKey) -> [Ciphertext; 256] {
     let mut result = a.clone();
     result
@@ -157,7 +156,6 @@ fn xor_256(a: &[Ciphertext; 256], b: &[Ciphertext; 256], sk: &ServerKey) -> [Cip
 
 // And a 256 bit ciphertext with a 256 bit ciphertext bitwise
 // Use parallelization for performance
-// Taken from bitwise_ops in Zama
 fn and_256(a: &[Ciphertext; 256], b: &[Ciphertext; 256], sk: &ServerKey) -> [Ciphertext; 256] {
     let mut result = a.clone();
     result
@@ -183,7 +181,7 @@ fn minus_shift(a: &[Ciphertext; 256], n: usize, sk: &ServerKey) -> [Ciphertext; 
     one[255] = true;
     add_plain_256(&not_shift, &one, sk)
 }
-// shifts a ciphertext to the left by n
+/// shifts a ciphertext to the left by n
 fn shift_left(x: &[Ciphertext; 256], n: usize, sk: &ServerKey) -> [Ciphertext; 256] {
     let mut result = x.clone();
     result.rotate_left(n);
@@ -192,8 +190,8 @@ fn shift_left(x: &[Ciphertext; 256], n: usize, sk: &ServerKey) -> [Ciphertext; 2
 }
 
 // ------------------------------ PLAINTEXT-CIPHERTEXT OPERATIONS ----------------------------------
-// This function multiplies a 256 bit plaintext with a 256 bit ciphertext and uses the CSD algorithm
-// to do so, a and p are considered as big-endian.
+/// This function multiplies a 256 bit plaintext with a 256 bit ciphertext and uses the CSD algorithm
+// /to do so, a and p are considered as big-endian.
 pub fn mul_ciphertext_by_plain_csd_opt_256(
     a_bits: &[Ciphertext; 256],
     p_bits: &[bool; 256],
@@ -252,32 +250,31 @@ pub fn mul_ciphertext_by_plain_csd_opt_256(
 }
 
 
-// Adds a 256 bit ciphertext with a 256 bits bit string, both are considered as big-endian
-// Modified from add in boolean_ops
+/// Adds a 256 bit ciphertext with a 256 bits bit string, both are considered as big-endian
+/// Modified from add in boolean_ops
 pub fn add_plain_256(
     a: &[Ciphertext; 256],
     b: &[bool; 256],
     sk: &ServerKey,
 ) -> [Ciphertext; 256] {
     let (propagate, generate) = rayon::join(|| xor_with_plain_256(a, b, sk), || and_with_plain_256(a, b, sk));
-
     let carry = brent_kung_256(&propagate, &generate, sk);
     xor_256(&propagate, &carry, sk)
 }
 
-// Xors a 256 bit plaintext with a 256 bit ciphertext bitwise
+/// Xors a 256 bit plaintext with a 256 bit ciphertext bitwise
 pub fn xor_with_plain_256(a: &[Ciphertext; 256], b: &[bool; 256], sk: &ServerKey, ) -> [Ciphertext; 256]{
     array::from_fn(|i| { sk.xor(&a[i], b[i]) })
 }
 
-// Ands a 256 bit plaintext with a 256 bit ciphertext bitwise
+/// Ands a 256 bit plaintext with a 256 bit ciphertext bitwise
 fn and_with_plain_256(a: &[Ciphertext; 256], b: &[bool; 256], sk: &ServerKey) -> [Ciphertext; 256] {
     array::from_fn(|i| { sk.and(&a[i], b[i]) })
 }
 
 // ------------------------------- PLAINTEXT-PLAINTEXT OPERATIONS ----------------------------------
 
-// Multiply two 256 bit-string (big-endian) with shift and add algo
+/// Multiply two 256 bit-string (big-endian) with shift and add algo
 fn mult_two_plain_256(a: &[bool; 256], b: &[bool; 256]) -> [bool; 256] {
     let zero256: [bool; 256] =[false; 256];
 
@@ -310,7 +307,7 @@ fn mult_two_plain_256(a: &[bool; 256], b: &[bool; 256]) -> [bool; 256] {
     acc
 }
 
-// Multiply two bit strings of 256 bits
+/// Add two bit strings of 256 bits
 fn add_two_plain_256(a: &[bool; 256], b: &[bool; 256]) -> [bool; 256] {
     // Start with the carry = 0, then do bitwise addition, taking into account the carry
     let mut carry : bool = false;
@@ -360,7 +357,6 @@ fn plain_shift_left(x: &[bool; 256], n: usize) -> [bool; 256] {
 pub fn trivial_bools_256(bools: &[bool; 256], sk: &ServerKey) -> [Ciphertext; 256] {
     array::from_fn(|i| sk.trivial_encrypt(bools[i]))
 }
-
 
 
 // --------------------------------------- UTILS ---------------------------------------------------

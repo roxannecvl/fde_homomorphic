@@ -1,4 +1,4 @@
-// This module contains the padding function for SHA3-256
+/// This module contains the padding function for SHA3-256
 use tfhe::boolean::prelude::*;
 
 /// This function pads plaintext data before it is encrypted and then hashed
@@ -29,9 +29,7 @@ pub fn pad_sha3_256_cipher(ct : Vec<Ciphertext>, sk : &ServerKey) -> Vec<Ciphert
     const RATE_BYTES: usize = 1088 / 8;
     assert_eq!(ct.len() % 8, 0);
     let nb_bytes = ct.len() / 8;
-
     let mut mut_ct = ct.clone();
-
 
     // If we only need one byte to reach a block, we add the special 0x86 suffix:
     if nb_bytes % RATE_BYTES == RATE_BYTES - 1 {
@@ -40,7 +38,6 @@ pub fn pad_sha3_256_cipher(ct : Vec<Ciphertext>, sk : &ServerKey) -> Vec<Ciphert
             let new_cipher : Ciphertext = sk.trivial_encrypt(((new_byte>> i) & 1) == 1);
             mut_ct.push(new_cipher);
         }
-
     } else {
         // Otherwise, do the 0x06 prefix, padding and finally 0x80,
         // to reach a length multiple of a block
@@ -49,7 +46,6 @@ pub fn pad_sha3_256_cipher(ct : Vec<Ciphertext>, sk : &ServerKey) -> Vec<Ciphert
             let new_cipher : Ciphertext = sk.trivial_encrypt(((new_byte>> i) & 1) == 1);
             mut_ct.push(new_cipher);
         }
-
         let zero_byte_cipher: Ciphertext = sk.trivial_encrypt(false);
         while (mut_ct.len() / 8) % RATE_BYTES != RATE_BYTES - 1 {
             for _ in 0..8 {
@@ -65,8 +61,8 @@ pub fn pad_sha3_256_cipher(ct : Vec<Ciphertext>, sk : &ServerKey) -> Vec<Ciphert
     mut_ct
 }
 
-// This function is useful at the end of the protocol, to unpad the decrypted data and compute
-// Sha3 on it.
+/// This function is useful at the end of the protocol, to unpad the decrypted data and compute
+/// Sha3 on the plaintext to compare it.
 pub fn unpad_sha3_256_bytes(padded_bits: &[bool]) -> Vec<u8> {
     // Check that the bit length is divisible by 8
     assert_eq!(padded_bits.len() % 8,  0);

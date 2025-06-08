@@ -1,3 +1,4 @@
+/// This binary runs the client for Protocol II, a protocol for fair data exchange using hybrid homomorphic encryption
 use std::fs;
 use std::io::{ Write};
 use std::net::{TcpListener, TcpStream};
@@ -11,27 +12,24 @@ use fde_protocols::prot_utils::*;
 
 
 fn main() {
+    // 1 : retrieve the hash of the data
     let hash_data = fs::read_to_string(HASH_FILE).map_err(|e| {
         format!(
             "Failed to read `{}`: {}",
             HASH_FILE, e
         )
     }).unwrap();
-
     let mut time_recap: String = String::new();
 
+    // 2 : wait for the server to send Hk, k_ct, IV, ct, sk and unserialize them
     println!("Client ▶ listening on port {} …", CLIENT_PORT);
     let listener =
         TcpListener::bind(("127.0.0.1", CLIENT_PORT)).expect("Failed to bind Client listener");
-
-    // First, wait for the server to send ct, evk, op
     let (mut server_conn, addr) = listener
         .accept()
         .expect("Failed to accept connection from Server");
     println!("Client ▶ accepted connection from Server at {}", addr);
 
-
-    // Get data from the server
     let sym_enc_data_serialized = read_one_message(&server_conn).unwrap();
     let encrypted_sym_key_serialized = read_one_message(&server_conn).unwrap();
     let sym_key_hash_serialized = read_one_message(&server_conn).unwrap();
@@ -55,6 +53,8 @@ fn main() {
         len_comm
     );
 
+    // 3 : run CreateChal
+    // 3a : decrypt the data homomorphically
     println!("Client ▶ decrypting the data homomorphically...");
     let start = Instant::now();
     let small_start = Instant::now();
@@ -62,12 +62,14 @@ fn main() {
     let small_time = small_start.elapsed();
     println!("Decrypting the data homomorphically took {:?}", small_time);
 
+    // 3b : compute the hash of data homomorphically
     let small_start = Instant::now();
     println!("Client ▶ Computing the hash of the data homomorphically ...");
     let data_hash_comp = sha3_256_fhe(data_dec, &public_key);
     let small_time = small_start.elapsed();
     println!("Computing the hash of the data took {:?}", small_time);
 
+    // 3c : compute the hash of symmetric key homomorphically
     let small_start = Instant::now();
     println!("Client ▶ Computing the hash of the key homomorphically ...");
     let padded_sym_key = pad_sha3_256_cipher(encrypted_sym_key.to_vec(), &public_key);
@@ -75,17 +77,16 @@ fn main() {
     let small_time = small_start.elapsed();
     println!("Computing the hash of the key {:?}", small_time);
 
+    // 3d : compute the final challenge with the intermediate values
     println!("Client ▶ computing the challenge with the hashes ...");
     let small_start = Instant::now();
     let (a, b, c) = get_rand_abc();
 
-
+    // get the plaintext hashes
     let sym_key_hash_bytes = hex::decode(sym_key_hash).unwrap();
-
     let sym_key_hash_bits_vec : Vec<bool> =  sym_key_hash_bytes.iter()
         .flat_map(|byte| (0..8).map(move |i| (byte >> i) & 1u8 == 1u8)).collect();
     let sym_key_hash_bits : [bool; 256] = sym_key_hash_bits_vec.try_into().unwrap();
-
     let data_hash_bytes = hex::decode(hash_data.clone()).unwrap();
     let data_hash_bits_vec: Vec<bool> =  data_hash_bytes.iter()
         .flat_map(|byte| (0..8).map(move |i| (byte >> i) & 1u8 == 1u8)).collect();
@@ -99,14 +100,10 @@ fn main() {
     let mut full_time = time;
     time_recap.push_str(&format!(" (createChal : {:?},", time));
 
-
-
-
-    // Send chal to the server
+    // 4 : send chal to the server
     let chal_serialized = bincode::serialize(&chal.as_slice()).unwrap();
     server_conn.write_all(prepare_message(chal_serialized.as_slice()).as_slice()).unwrap();
     println!("Client ▶ sent chal to the server");
-
     let com_off_chain = format!(
         "OFF-CHAIN COMMUNICATION COST: {} bytes (ct is {} bytes, H_k is {} bytes, k_ct is {} bytes, iv is {},  public_key is {} bytes, chal is {} bytes)\n",
         len_comm + chal_serialized.len(),
@@ -119,18 +116,17 @@ fn main() {
     );
     let hash_a = sha3_hash_from_vec_bool(a.to_vec());
 
-    // Connect to SmartContract and send (H_a, H_k):
+    // 5 : send the hash of a and of the hash key to the smart contract
     let h_a_serialized = bincode::serialize(&hash_a).unwrap();
     println!("Client ▶ connecting to SmartContract at port {} …", SC_PORT);
     let mut sc_conn =
         TcpStream::connect(("127.0.0.1", SC_PORT)).expect("Failed to connect to SmartContract");
-
     sc_conn.write_all(prepare_message(&h_a_serialized).as_slice()).expect("Failed to write data to SmartContract");
     sc_conn.write_all(prepare_message(&sym_key_hash_serialized).as_slice()).expect("Failed to write data to SmartContract");
     println!("Client ▶ sent (Ha, Hk) on‐chain to SmartContract");
 
-    // Wait for the secret key / status message, in a real scenario the secret key would be public
-    // at that point and the smart contract wouldn't have had to send it
+    // 6 : wait for the secret symmetric key and status from smart contract (in real life those
+    // values would be public on the blockchain)
     let mut status_data = read_one_message(&sc_conn).unwrap();
     let key_serialized = read_one_message(&sc_conn).unwrap();
     let key_part : Vec<bool> = bincode::deserialize(&key_serialized).unwrap();
@@ -141,6 +137,8 @@ fn main() {
         println!("Client ▶ final outcome from SmartContract = ABORT");
         println!("Client ▶ done.");
     }else{
+        // 7 : decrypt the data symmetrically with the symmetric key and check that it has the
+        // expected hash
         println!("Client ▶ final outcome from SmartContract = SUCCESS");
         println!("Client ▶ decrypting the data....");
         let start = Instant::now();
@@ -149,7 +147,6 @@ fn main() {
         let time = start.elapsed();
         time_recap.push_str(&format!(" decryption time is : {:?})", time));
         full_time = time + full_time;
-
         println!("Client ▶ Computing the hash....");
 
         let direct_hash = hex_sha3(unpaded_data.as_slice());
@@ -161,6 +158,8 @@ fn main() {
             println!("homomorphic decryption then hash : {}", direct_hash);
         }
     }
+
+    // 8 : Print some statistics about the run
     let mut beginning_time_string = String::new();
     beginning_time_string.push_str(&format!(
         "CLIENT COMPUTATION COST IS {:?}" , full_time
@@ -171,7 +170,7 @@ fn main() {
     println!("{}", com_off_chain);
 }
 
-// Returns a thriple of random bit strings
+/// Returns a triple of random bit strings
 fn get_rand_abc()->([bool; 256], [bool; 256], [bool; 256]){
     let mut buf_a = vec![0u8; 32];
     rand::thread_rng().fill(&mut buf_a[..]);

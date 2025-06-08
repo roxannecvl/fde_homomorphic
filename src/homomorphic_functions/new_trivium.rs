@@ -1,6 +1,6 @@
-//! This module implements the Trivium stream cipher, using boolean or Ciphertext
-//! for the representation of the inner bits.
-//! This was taken from trivium in the zama library and adapted for the boolean API.
+/// This module implements the Trivium stream cipher, using boolean or Ciphertext
+/// for the representation of the inner bits.
+/// This was taken from trivium in the zama library and adapted for the boolean API.
 
 use crate::static_deque::StaticDeque;
 use rayon::prelude::*;

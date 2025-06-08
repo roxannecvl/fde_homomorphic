@@ -1,3 +1,6 @@
+/// Encrypts and decrypts Ciphertext to booleans
+/// Taken from the tfhe-rs library in the sha256 example main
+
 use tfhe::boolean::ciphertext::Ciphertext;
 use tfhe::boolean::client_key::ClientKey;
 

@@ -1,6 +1,7 @@
 //! This module implements the StaticDeque struct: a deque utility whose size
 //! is known at compile time. Construction, push, and indexing are publicly
 //! available.
+//! This was taken from the static_decque in the trivium app from zama's tfhe-rs
 
 use core::ops::{Index, IndexMut};
 

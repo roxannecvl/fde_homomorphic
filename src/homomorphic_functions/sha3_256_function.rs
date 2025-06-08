@@ -1,14 +1,13 @@
-//! Homomorphic SHA3-256 implementation using TFHE-rs Boolean API
-//!
-//! This file provides `sha3_fhe` which takes a fixed-size block of 1088 encrypted bits
-//! and returns 256 encrypted bits representing the SHA3-256 digest.
+/// Homomorphic SHA3-256 implementation using TFHE-rs Boolean API
+///
+/// This file also provides `sha3_fhe` which takes a fixed-size block of 1088 encrypted bits
+/// and returns 256 encrypted bits representing the SHA3-256 digest.
 use tfhe::boolean::prelude::*;
 use sha3::{Digest, Sha3_256};
 
 use crate::homomorphic_functions::{rotate_right, xor_64, and_64, xor_with_plain_64};
 
 /// Round constants for Keccak-f[1600]
-
 const N_ROUNDS : usize = 24; // number of rounds nᵣ = 12 + 2ℓ, hence 24 for Keccak-f[1600] [Keccak §1.2]
 
 /**
@@ -31,14 +30,14 @@ const RC: [u64; 24] = [
 ];
 
 
-// Used to get the hex form of the hash once the sha has been decrypted
+/// Used to get the hex form of the hash once the sha has been decrypted
 pub fn bools_to_hex(bits: &[bool]) -> String {
     let bytes = bits_to_bytes_lsb(bits);
     assert_eq!(bytes.len(), 32);
     hex::encode(bytes)
 }
 
-// The plaintext implementation of sha3, for comparison uses
+/// The plaintext implementation of sha3
 pub fn hex_sha3(data : &[u8]) -> String {
     let mut hasher = Sha3_256::new();
     hasher.update(data);
@@ -47,6 +46,7 @@ pub fn hex_sha3(data : &[u8]) -> String {
     hex
 }
 
+/// Used to get the hash of data in the form of Vec<bool>
 pub fn sha3_hash_from_vec_bool(data: Vec<bool>) -> String {
     // Get bytes from Vec<bool>
     let bytes : Vec<u8> = data.chunks(8)
@@ -60,10 +60,12 @@ pub fn sha3_hash_from_vec_bool(data: Vec<bool>) -> String {
             })
         })
         .collect();
+    // then hash normally
     hex_sha3(&bytes)
 }
 
 /// Homomorphic SHA3-256, returns 256 Ciphertext bits
+/// Expects a padded ciphertext
 pub fn sha3_256_fhe(
     input: Vec<Ciphertext>,
     sk: &ServerKey,
@@ -75,8 +77,7 @@ pub fn sha3_256_fhe(
     let zero_uint64 =  std::array::from_fn(|_| zero.clone());
     let five_zero_uint64 = std::array::from_fn(|_| zero_uint64.clone());
 
-
-    // Gather input, pad to multiples of 1088 bits
+    // Gather input
     let bits_ct = input.clone();
 
     // Allocate fixed buffers
@@ -94,7 +95,7 @@ pub fn sha3_256_fhe(
             state[x][y] = xor_64(&state[x][y], &new_cipher_u64, &sk);
         }
 
-        // Permute
+        // Perform the keccak permutation
         keccak_f1600_boolean(
             &mut state,
             sk,
@@ -103,7 +104,6 @@ pub fn sha3_256_fhe(
             &mut d_buf,
         );
     }
-
 
     // Squeeze first 256 bits
     let out: [Ciphertext; 256] = std::array::from_fn(|k| {
@@ -117,8 +117,9 @@ pub fn sha3_256_fhe(
     out
 }
 
+// -------------------------- HELPER FUNCTIONS ---------------------------------------
+
 // This function does the keccak f1600 permutation for sha3-256
-#[allow(clippy::too_many_arguments)]
 fn keccak_f1600_boolean(
     state: &mut [[[Ciphertext; 64]; 5]; 5],
     sk: &ServerKey,
@@ -129,7 +130,7 @@ fn keccak_f1600_boolean(
     // Keccak-f permutations
     for r in 0..N_ROUNDS{
 
-        // θ
+        // θ phase
         for x in 0..5 {
             c_buf[x] = state[x][0].clone();
             for y in 1..5 {
@@ -143,7 +144,7 @@ fn keccak_f1600_boolean(
             }
         }
 
-        // ρ + π
+        // ρ + π phase
         let mut x = 1;
         let mut y = 0;
         let mut current = state[x][y].clone();
@@ -157,7 +158,7 @@ fn keccak_f1600_boolean(
             y = new_y;
         }
 
-        // χ
+        // χ phase
         for y in 0..5 {
             let col: [[Ciphertext; 64]; 5] = [
                 state[0][y].clone(),
@@ -171,26 +172,22 @@ fn keccak_f1600_boolean(
                 let cx   = &col[x];
                 let cx1  = &col[(x + 1) % 5];
                 let cx2  = &col[(x + 2) % 5];
-
                 // homomorphic NOT = XOR with all-ones
                 let not_cx1 = xor_64(cx1, &one_lane, sk);
-
                 // and-part: (~C[x+1]) & C[x+2]
                 let and_part = and_64(&not_cx1, cx2, sk);
-
                 // final: C[x] ^ and_part
                 state[x][y] = xor_64(cx, &and_part, sk);
             }
         }
 
-        // ι
+        // ι phase
         let rc_r_bits = u64_to_bits_lsb(RC[r]);
         state[0][0] = xor_with_plain_64(&state[0][0] , &rc_r_bits, &sk);
-
     }
 }
 
-
+// transforms a u64 into an array of 64 bool
 fn u64_to_bits_lsb(x: u64) -> [bool; 64] {
     let mut bits = [false; 64];
     for i in 0..64 {
@@ -199,6 +196,7 @@ fn u64_to_bits_lsb(x: u64) -> [bool; 64] {
     bits
 }
 
+// transforms bits to bytes
 fn bits_to_bytes_lsb(bits: &[bool]) -> Vec<u8> {
     bits.chunks(8)
         .map(|chunk| {

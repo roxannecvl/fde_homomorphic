@@ -14,7 +14,8 @@ pub const SERVER_PORT: u16 = 9001;
 pub const DATA_FILE : &str = "data.txt";
 pub const HASH_FILE : &str = "hash.txt";
 
-// Verify function for smart contract and server for protocol I
+/// Verify function for smart contract and server for protocol I
+/// Check the commitment, and the decryption of hash_ct == hash
 pub fn verify(hash_ct : Vec<Ciphertext>, hash : String, com : String, op : &Opening) -> bool {
     if !verify_open(com, op) { return false }
     let secret_key : ClientKey = bincode::deserialize(op.data.as_slice()).unwrap();
@@ -22,7 +23,8 @@ pub fn verify(hash_ct : Vec<Ciphertext>, hash : String, com : String, op : &Open
     bools_to_hex(&hash_comp) == hash
 }
 
-// VerifyKA function for smart contract and server for protocol II
+/// VerifyKA function for smart contract and server for protocol II
+/// Check that the hash of a and k are the expected ones
 pub fn verify_ka(hash_a : String, hash_k : String, a : Vec<bool>, k : Vec<bool>) -> bool {
     let hash_a_comp = sha3_hash_from_vec_bool(a);
     let hash_k_comp = sha3_hash_from_vec_bool(k);
@@ -30,7 +32,8 @@ pub fn verify_ka(hash_a : String, hash_k : String, a : Vec<bool>, k : Vec<bool>)
 }
 
 
-// Reads one message, does not wait for connection to be closed
+/// Reads one message, does not wait for connection to be closed
+/// The message first uses 4 bytes for its size, and then the actual data
 pub fn read_one_message(mut stream: &TcpStream) -> io::Result<Vec<u8>> {
     // Read  4 bytes for the big-endian length prefix
     let mut len_buf = [0u8; 4];
@@ -43,6 +46,7 @@ pub fn read_one_message(mut stream: &TcpStream) -> io::Result<Vec<u8>> {
     Ok(buf)
 }
 
+/// Prepare a message to have the expected format : 4 bytes for size, then the data
 pub fn prepare_message(msg: &[u8]) -> Vec<u8> {
     let len = msg.len() as u32;
     // length in big endian
@@ -53,15 +57,5 @@ pub fn prepare_message(msg: &[u8]) -> Vec<u8> {
     buf.extend_from_slice(&len_be);
     buf.extend_from_slice(msg);
 
-    buf
-}
-
-
-// Reads all data from stream until EOF into buf.
-pub fn read_all_bytes(mut stream: TcpStream) -> Vec<u8> {
-    let mut buf = Vec::new();
-    stream
-        .read_to_end(&mut buf)
-        .expect("Failed to read JSON from Server");
     buf
 }
