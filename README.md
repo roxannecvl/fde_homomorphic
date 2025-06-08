@@ -30,14 +30,15 @@ This will create two files, `data.txt`, with the data, and `hash.txt` with the h
 You have two options to run Protocol I 
 #### Option 1 
 Open 3 terminals and run the client, the server and the smart contract in each of them separately. Always start with the client, then smart contract, then server. 
-
-**1:** `target/release/client1` in terminal 1 
-
-
-**2:** `target/release/smart_contract1` in terminal 2 
-
-
-**3:** `target/release/server1` in terminal 3
+```bash
+./target/release/client1 # in terminal 1 
+```
+```bash
+./target/release/smart_contract1 # in terminal 2
+```
+```bash
+./target/release/server1 # in terminal 3 
+```
 
 #### Option 2 
 If you just want to test the the protocol, you can run the script `./run_prot1.sh <size>` which will call `./target/release/setup`, run the `client1`, `server1` and `smart_contract1`, and append a summary of the run (communication and computation costs in `prot1_output.txt`. You'll find more details about the run in `client_out.txt`, `server_out.txt` and `sc_out.txt`. 
