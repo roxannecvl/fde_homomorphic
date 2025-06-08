@@ -3,6 +3,14 @@
 This project contains the code to run two different fair data exchange protocols. 
 They use one instance of client, server, and smart contract each. Protocol I uses homomorphic encryption while Protocol II uses 
 
+## Prerequisites 
+Rust and Cargo are needed to run this project.
+Install Rust and Cargo in one command using [rustup](https://rustup.rs/):
+```bash
+curl https://sh.rustup.rs -sSf | sh
+```
+Ensure that `$HOME/.cargo/bin` is in your system's PATH. You might need to source your shell's configuration file (e.g., `source $HOME/.cargo/env` or `source ~/.bashrc`) or restart your terminal.
+
 ## Running the protocols 
  > **Warning:** All commands are expected to be run from the root of this project 
 Before running any of the two protocols, you should build the project in release mode. 
