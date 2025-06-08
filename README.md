@@ -1,7 +1,7 @@
 # Fair Data Exchange via Homomorphic Encryption 
 
 This project contains the code to run two different fair data exchange protocols. 
-They use one instance of client, server, and smart contract each. 
+They use one instance of client, server, and smart contract each. Protocol I uses homomorphic encryption while Protocol II uses 
 
 ## Protocol I 
 Uses client1.rs, smart_contract1.rs, server1.rs, uses homomorphic encryption to enable fair data exchange, where 
@@ -15,5 +15,11 @@ Then you should run setup, you can either give to setup a file with the data you
 
 `./target/release/setup --size 128`
 `./target/release/setup --filename data.txt`
+
+
+## Evaluating the performance of the protocols 
+<div style="background-color:#fdd; border:1px solid #f99; padding:10px; border-radius:4px;">
+**⚠️ Warning:** Evaluating the performance is a time-consuming operation. 
+</div>
 
 
