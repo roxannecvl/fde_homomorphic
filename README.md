@@ -16,7 +16,7 @@ Ensure that `$HOME/.cargo/bin` is in your system's PATH. You might need to sourc
 Before running any of the two protocols, you should build the project in release mode. 
 `cargo build --release`
 
-Then you should run the `setup` binary. You can either give to setup a file with the data you want to exchange or a size in bytes, in that case it will exchange a random data of that size (in case you just want to test the functionality of the project). 
+Then you should run the `setup` binary. You can either give to `setup` the filename of the file which contains the data you want to exchange or a size in bytes, in that case it will exchange a random data of that size (in case you just want to test the functionality of the project). 
 
 `./target/release/setup --size 128`
 `./target/release/setup --filename filename.txt`
