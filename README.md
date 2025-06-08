@@ -107,6 +107,9 @@ This will produce 5 `.png` files: communication costs (off and on chain), comput
 all functions in `./src/boolean_ops256.rs` from tfhe-rs sha256_bool example, [boolean_ops.rs](https://github.com/zama-ai/tfhe-rs/blob/main/tfhe/examples/sha256_bool/boolean_ops.rs) except: 
 `compute_challenge`, `mul_ciphertext_by_plain_csd_opt_256`, `mult_two_plain_256`, `add_two_plain_256`, `to_csd_be`, `to_csd`
 
+**This proprietary code is thus under the following license**
+
+
 
 
 
