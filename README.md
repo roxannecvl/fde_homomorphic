@@ -11,6 +11,12 @@ curl https://sh.rustup.rs -sSf | sh
 ```
 Ensure that `$HOME/.cargo/bin` is in your system's PATH. You might need to source your shell's configuration file (e.g., `source $HOME/.cargo/env` or `source ~/.bashrc`) or restart your terminal.
 
+If you already have rust, make sure it updated with 
+```bash
+rustup update
+```
+
+
 ## Running the protocols 
  > **Warning:** All commands are expected to be run from the root of this project 
 Before running any of the two protocols, you should build the project in release mode. 
@@ -41,7 +47,7 @@ Open 3 terminals and run the client, the server and the smart contract in each o
 ```
 
 #### Option 2 
-If you just want to test the the protocol, you can run the script `./run_prot1.sh <size>` which will call `./target/release/setup`, run the `client1`, `server1` and `smart_contract1`, and append a summary of the run (communication and computation costs in `prot1_output.txt`. You'll find more details about the run in `client_out.txt`, `server_out.txt` and `sc_out.txt`. 
+If you just want to test the the protocol, you can run the script `./run_prot1.sh <size>` which will call `./target/release/setup`, run the `client1`, `server1` and `smart_contract1`, and append a summary of the run (communication and computation costs) in `prot1_output.txt`. You'll find more details about the run in `client_out.txt`, `server_out.txt` and `sc_out.txt`. 
 
 ### Protocol II 
 
@@ -59,11 +65,27 @@ Open 3 terminals and run the client, the server and the smart contract in each o
 ```
 
 #### Option 2 
-If you just want to test the the protocol, you can run the script `./run_prot2.sh <size>` which will call `./target/release/setup`, run the `client2`, `server2` and `smart_contract2`, and append a summary of the run (communication and computation costs in `prot2_output.txt`. You'll find more details about the run in `client2_out.txt`, `server2_out.txt` and `sc2_out.txt`. 
+If you just want to test the the protocol, you can run the script `./run_prot2.sh <size>` which will call `./target/release/setup`, run the `client2`, `server2` and `smart_contract2`, and append a summary of the run (communication and computation costs) in `prot2_output.txt`. You'll find more details about the run in `client2_out.txt`, `server2_out.txt` and `sc2_out.txt`. 
 
 
 ## Evaluating the performance of the protocols 
- > **Warning:** Evaluating the performance is a time-consuming operation. 
+ > **Warning:** Evaluating the performance is a time-consuming operation.
+First, make sure you delete or move `prot1_output.txt` and `prot2_output.txt`. 
+To evaluate the protocols you should run
+```bash
+./eval_prot1.sh
+./eval_prot2.sh
+```
+You can modify in this two scripts how many times and on which different sizes you want to evaluate. 
+This will output two summary files `prot1_output.txt` and `prot2_output.txt`, with a recap of computation and communication costs for each run. 
+To get graphs you can run: 
+```python
+python graph_plotter.py
+```
+This will produce 5 `.png` files: communication costs (off and on chain), computation costs (for client, server, and smart contract). 
+
+
+
 
 
 
