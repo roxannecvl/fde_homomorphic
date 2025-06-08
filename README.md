@@ -11,11 +11,15 @@ curl https://sh.rustup.rs -sSf | sh
 ```
 Ensure that `$HOME/.cargo/bin` is in your system's PATH. You might need to source your shell's configuration file (e.g., `source $HOME/.cargo/env` or `source ~/.bashrc`) or restart your terminal.
 
-If you already have rust, make sure it updated with 
+If you already have rust, make sure it updated with: 
 ```bash
 rustup update
 ```
 
+Make sure rust is correctly installated with: 
+```bash
+ rustc --version
+```
 
 ## Running the protocols 
  > **Warning:** All commands are expected to be run from the root of this project
