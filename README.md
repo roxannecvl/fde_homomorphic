@@ -21,7 +21,7 @@ You have two options to run Protocol I
 #### Option 1 
 Open 3 terminals and run the client, the server and the smart contract in each of them separately. Always start with the client, then smart contract, then server. 
 
-**1:** `target/release/client1` in terminal 1 `
+**1:** `target/release/client1` in terminal 1 
 
 
 **2:** `target/release/smart_contract1` in terminal 2 
@@ -38,7 +38,7 @@ Similarly, you have two options to run Protocol II
 #### Option 1 
 Open 3 terminals and run the client, the server and the smart contract in each of them separately. Always start with the client, then smart contract, then server. 
 
-**1:** `target/release/client2` in terminal 1 `
+**1:** `target/release/client2` in terminal 1 
 
 
 **2:** `target/release/smart_contract2` in terminal 2 
