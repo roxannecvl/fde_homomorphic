@@ -71,6 +71,8 @@ If you just want to test the the protocol, you can run the script `./run_prot2.s
 
 ## Evaluating the performance of the protocols 
  > **Warning:** Evaluating the performance is a time-consuming operation.
+
+
 First, make sure you delete or move `prot1_output.txt` and `prot2_output.txt`. 
 To evaluate the protocols you should run
 ```bash
