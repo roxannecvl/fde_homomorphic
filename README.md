@@ -94,12 +94,18 @@ This will produce 5 `.png` files: communication costs (off and on chain), comput
 ## Proprietary code 
 **The following code was taken as is from the tfhe-rs library**
 
-`./src/static_decque/*` from  [the trivium app](https://github.com/zama-ai/tfhe-rs/tree/main/apps/trivium/src/static_deque)
+`./src/static_decque/*` from  [tfhe-rs trivium app](https://github.com/zama-ai/tfhe-rs/tree/main/apps/trivium/src/static_deque)
 
 `./encryption.rs` from the main in the [sha256_bool example](https://github.com/zama-ai/tfhe-rs/blob/main/tfhe/examples/sha256_bool/main.rs)
 
 **The following code was slightly adapted from the tfhe-rs library** 
-`./src/new_trivium.rs` from 
+
+`./src/new_trivium.rs` from  [tfhe-rs trivium app](https://github.com/zama-ai/tfhe-rs/blob/main/apps/trivium/src/trivium/trivium_bool.rs)
+
+`./src/boolean_ops64.rs` from tfhe-rs sha256_bool example, [boolean_ops.rs](https://github.com/zama-ai/tfhe-rs/blob/main/tfhe/examples/sha256_bool/boolean_ops.rs)
+
+`./src/boolean_ops256.rs` from tfhe-rs sha256_bool example, [boolean_ops.rs](https://github.com/zama-ai/tfhe-rs/blob/main/tfhe/examples/sha256_bool/boolean_ops.rs)
+
 
 
 
