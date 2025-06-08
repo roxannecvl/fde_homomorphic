@@ -30,10 +30,24 @@ Open 3 terminals and run the client, the server and the smart contract in each o
 **3:** `target/release/server1` in terminal 3
 
 #### Option 2 
-If you just want to test the the protocol, you can run the script `./run_prot1.sh <size>`
+If you just want to test the the protocol, you can run the script `./run_prot1.sh <size>` which will call `./target/release/setup`, run the `client1`, `server1` and `smart_contract1`, and append a summary of the run (communication and computation costs in `prot1_output.txt`. You'll find more details about the run in `client_out.txt`, `server_out.txt` and `sc_out.txt`. 
+
+### Protocol II 
+
+Similarly, you have two options to run Protocol II 
+#### Option 1 
+Open 3 terminals and run the client, the server and the smart contract in each of them separately. Always start with the client, then smart contract, then server. 
+
+**1:** `target/release/client2` in terminal 1 `
 
 
+**2:** `target/release/smart_contract2` in terminal 2 
 
+
+**3:** `target/release/server2` in terminal 3
+
+#### Option 2 
+If you just want to test the the protocol, you can run the script `./run_prot2.sh <size>` which will call `./target/release/setup`, run the `client2`, `server2` and `smart_contract2`, and append a summary of the run (communication and computation costs in `prot2_output.txt`. You'll find more details about the run in `client2_out.txt`, `server2_out.txt` and `sc2_out.txt`. 
 
 
 ## Evaluating the performance of the protocols 
