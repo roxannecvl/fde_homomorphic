@@ -3,18 +3,37 @@
 This project contains the code to run two different fair data exchange protocols. 
 They use one instance of client, server, and smart contract each. Protocol I uses homomorphic encryption while Protocol II uses 
 
-## Protocol I 
-Uses client1.rs, smart_contract1.rs, server1.rs, uses homomorphic encryption to enable fair data exchange, where 
-
-
 ## Running the protocols 
+ > **Warning:** All commands are expected to be run from the root of this project 
 Before running any of the two protocols, you should build the project in release mode. 
 `cargo build --release`
 
-Then you should run setup, you can either give to setup a file with the data you want to exchange or a size in bytes, in that case it will exchange a random data of that size (in case you just want to test the functionality of the project). 
+Then you should run the `setup` binary. You can either give to setup a file with the data you want to exchange or a size in bytes, in that case it will exchange a random data of that size (in case you just want to test the functionality of the project). 
 
 `./target/release/setup --size 128`
-`./target/release/setup --filename data.txt`
+`./target/release/setup --filename filename.txt`
+
+This will create two files, `data.txt`, with the data, and `hash.txt` with the hash of the data. If you already have these two files in the root of this project, running `setup` is not necessary.
+
+### Protocol I 
+
+You have two options to run Protocol I 
+#### Option 1 
+Open 3 terminals and run the client, the server and the smart contract in each of them separately. Always start with the client, then smart contract, then server. 
+
+**1:** `target/release/client1` in terminal 1 `
+
+
+**2:** `target/release/smart_contract1` in terminal 2 
+
+
+**3:** `target/release/server1` in terminal 3
+
+#### Option 2 
+If you just want to test the the protocol, you can run the script `./run_prot1.sh <size>`
+
+
+
 
 
 ## Evaluating the performance of the protocols 
