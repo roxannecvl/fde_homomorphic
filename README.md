@@ -1,1 +1,2 @@
-# fde_homomorphic
+# Fair Data Exchange via Homomorphic Encryption 
+
