@@ -90,7 +90,7 @@ if [ -z "$SERVER_RET_LAST_LINE" ]; then
     SERVER_RET_LAST_LINE="<no output>"
 fi
 
-# 7) Append everything to prot2_output.txt
+# Append everything to prot2_output.txt
 {
   echo "=== Run with size=${SIZE} ==="
   echo "COMPUTATION COST:"
