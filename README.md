@@ -18,8 +18,7 @@ Then you should run setup, you can either give to setup a file with the data you
 
 
 ## Evaluating the performance of the protocols 
-<div style="background-color:#fdd; border:1px solid #f99; padding:10px; border-radius:4px;">
-**⚠️ Warning:** Evaluating the performance is a time-consuming operation. 
-</div>
+ > **Warning:** Evaluating the performance is a time-consuming operation. 
+
 
 
