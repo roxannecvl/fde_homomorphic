@@ -79,7 +79,7 @@ To evaluate the protocols you should run
 ./eval_prot1.sh
 ./eval_prot2.sh
 ```
-You can modify in this two scripts how many times and on which different sizes you want to evaluate. 
+You can modify in these two scripts how many times you should evaluate each size and on which different sizes you want to evaluate. 
 This will output two summary files `prot1_output.txt` and `prot2_output.txt`, with a recap of computation and communication costs for each run. 
 To get graphs you can run: 
 ```python
