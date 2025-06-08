@@ -1,5 +1,7 @@
 /// This module contains helper functions for the multiplication of bitstring of 256 bit with ciphertexts
-/// Some of these functions were adapted from boolean_ops in zama's sha256 example
+/// All the functions were adapted from boolean_ops in zama's sha256 example
+/// EXCEPT: compute_challenge, mul_ciphertext_by_plain_csd_opt_256, mult_two_plain_256,
+/// add_two_plain_256, to_csd_be, to_csd
 
 use rayon::prelude::*;
 use std::array;
