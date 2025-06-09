@@ -1,7 +1,7 @@
 # Fair Data Exchange via Homomorphic Encryption 
 
 This project contains the code to run two different fair data exchange protocols. 
-They use one instance of client, server, and smart contract each. Protocol I uses homomorphic encryption while Protocol II uses 
+They use one instance of client, server, and smart contract each. Protocol I uses homomorphic encryption while Protocol II uses hybrid homomorphic encryption.
 
 ## Prerequisites 
 Rust and Cargo are needed to run this project.
