@@ -138,3 +138,6 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCL
 NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ```
+
+## ServerKey vs ClientKey
+The usual way homomorphic encryption is used, is that a client will encrypt some data and will send it to a sever. The server can then perform homomorphic evaluations on this data, return the evaluated ciphertext, and the client can decrypt the evaluation. This is why, in the tfhe-rs library the type `ServerKey` represents the public/ evaluation key, ad the type `Clientkey` represents the secret key. In our use of homomorphic encryption, the sevrer keeps the secret key, and the client uses the public key. This is why you'll see the server with a `ClientKey` and the client with a `ServerKey`. This is not a mistake, the names given to those types by tfhe-rs are just not adapted to our use of homomorphic encryption.
